@@ -119,3 +119,31 @@ def get_last_race_results():
             )
         output += "```"
     return output
+
+
+def get_upcoming_session():
+    today = pd.Timestamp.now(tz="UTC").tz_localize(None)
+
+    nextevents = fastf1.get_events_remaining(dt=today)
+
+    upcoming_sessions = []
+
+    for _, event in nextevents.iterrows():
+
+        for i in range(1, 6):
+            session_name = event[f"Session{i}"]
+            raw_date = event[f"Session{i}DateUtc"]
+
+            if pd.isna(raw_date) or pd.isna(session_name):
+                continue
+
+            session_date = pd.Timestamp(raw_date)
+            delta_time = session_date - today
+
+            if delta_time.total_seconds() > 0:
+                upcoming_sessions.append(
+                    (session_name, session_date, delta_time, event["EventName"])
+                )
+
+    upcoming_sessions.sort(key=lambda x: x[1])
+    return upcoming_sessions

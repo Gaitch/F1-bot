@@ -138,12 +138,12 @@ def get_upcoming_session():
                 continue
 
             session_date = pd.Timestamp(raw_date)
-            delta_time = session_date - today
+            delta_time = (session_date - today).total_seconds()
 
-            if delta_time.total_seconds() > 0:
+            if delta_time > 0:
                 upcoming_sessions.append(
                     (session_name, session_date, delta_time, event["EventName"])
                 )
 
     upcoming_sessions.sort(key=lambda x: x[1])
-    return upcoming_sessions
+    return upcoming_sessions[0]
